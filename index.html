@@ -1,0 +1,1749 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title>2024 Ohio Issue 1</title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="data/Issue1VotesasofPresVotes_1.js"></script>
+        <script src="data/PresidentialUndervote_2.js"></script>
+        <script src="data/Issue1Undervote_3.js"></script>
+        <script src="data/Issue1PresidentialSwing_4.js"></script>
+        <script src="data/PresidentialResults_5.js"></script>
+        <script src="data/Issue1Results_6.js"></script>
+        <script src="data/CountyOutline_7.js"></script>
+        <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+
+            if (e.target.feature.geometry.type === 'LineString' || e.target.feature.geometry.type === 'MultiLineString') {
+              highlightLayer.setStyle({
+                color: '#ffff00',
+              });
+            } else {
+              highlightLayer.setStyle({
+                fillColor: '#ffff00',
+                fillOpacity: 1
+              });
+            }
+        }
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[38.249382727985996,-87.20005755199591],[41.63970005760829,-80.16959758919427]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var title = new L.Control({'position':'topright'});
+        title.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info');
+            this.update();
+            return this._div;
+        };
+        title.update = function () {
+            this._div.innerHTML = '<h2>2024 Ohio Issue 1</h2>';
+        };
+        title.addTo(map);
+        var abstract = new L.Control({'position':'bottomleft'});
+        abstract.onAdd = function (map) {
+            this._div = L.DomUtil.create('div',
+            'leaflet-control abstract');
+            this._div.id = 'abstract'
+
+                abstract.show();
+                return this._div;
+            };
+            abstract.show = function () {
+                this._div.classList.remove("abstract");
+                this._div.classList.add("abstractUncollapsed");
+                this._div.innerHTML = 'Source: Redistricting Data Hub, Ohio Secretary of State<br /><br />Follow: @OPoliticsGuru';
+        };
+        abstract.addTo(map);
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_GoogleRoad_0');
+        map.getPane('pane_GoogleRoad_0').style.zIndex = 400;
+        var layer_GoogleRoad_0 = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleRoad_0',
+            opacity: 1.0,
+            attribution: '<a href="https://www.google.at/permissions/geoguidelines/attr-guide.html">Map data ©2015 Google</a>',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 20
+        });
+        layer_GoogleRoad_0;
+        map.addLayer(layer_GoogleRoad_0);
+        function pop_Issue1VotesasofPresVotes_1(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Precinct</th>\
+                        <td>' + (feature.properties['PRECNAME'] !== null ? autolinker.link(String(feature.properties['PRECNAME']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Registered Voters</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Registered Voters'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Registered Voters']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Ballots Cast</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Ballots Cast'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Ballots Cast']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Voter Turnout</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Voter Turnout'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Voter Turnout']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Issue 1 Yes</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Yes'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Yes']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Issue 1 No</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_No'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_No']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Duncan</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Duncan'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Duncan']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Harris</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Harris'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Harris']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Oliver</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Oliver'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Oliver']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Sonski</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Sonski'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Sonski']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Trump</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Trump'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Trump']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Issue 1 Undervote</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Issue 1 Undervote'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Issue 1 Undervote']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">President Undervote</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Pres Undervote'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Pres Undervote']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Issue 1 Votes/President Votes</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Issue 1 Votes/Pres Votes'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Issue 1 Votes/Pres Votes']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Issue1VotesasofPresVotes_1_0(feature) {
+            switch(String(feature.properties['q2wHide_Issue1Results — Precinct_Issue 1/Pres Color'])) {
+                case '#008000':
+                    return {
+                pane: 'pane_Issue1VotesasofPresVotes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,128,0,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#7FBF7F':
+                    return {
+                pane: 'pane_Issue1VotesasofPresVotes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(127,191,127,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFFFE7':
+                    return {
+                pane: 'pane_Issue1VotesasofPresVotes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,231,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFFFD0':
+                    return {
+                pane: 'pane_Issue1VotesasofPresVotes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,208,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFFFB9':
+                    return {
+                pane: 'pane_Issue1VotesasofPresVotes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,185,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFFFA2':
+                    return {
+                pane: 'pane_Issue1VotesasofPresVotes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,162,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFFF8B':
+                    return {
+                pane: 'pane_Issue1VotesasofPresVotes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,139,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFFF73':
+                    return {
+                pane: 'pane_Issue1VotesasofPresVotes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,115,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFFF5C':
+                    return {
+                pane: 'pane_Issue1VotesasofPresVotes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,92,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFFF45':
+                    return {
+                pane: 'pane_Issue1VotesasofPresVotes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,69,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFFF2E':
+                    return {
+                pane: 'pane_Issue1VotesasofPresVotes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,46,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFFF17':
+                    return {
+                pane: 'pane_Issue1VotesasofPresVotes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,23,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFFF00':
+                    return {
+                pane: 'pane_Issue1VotesasofPresVotes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,0,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Issue1VotesasofPresVotes_1');
+        map.getPane('pane_Issue1VotesasofPresVotes_1').style.zIndex = 401;
+        map.getPane('pane_Issue1VotesasofPresVotes_1').style['mix-blend-mode'] = 'normal';
+        var layer_Issue1VotesasofPresVotes_1 = new L.geoJson(json_Issue1VotesasofPresVotes_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Issue1VotesasofPresVotes_1',
+            layerName: 'layer_Issue1VotesasofPresVotes_1',
+            pane: 'pane_Issue1VotesasofPresVotes_1',
+            onEachFeature: pop_Issue1VotesasofPresVotes_1,
+            style: style_Issue1VotesasofPresVotes_1_0,
+        });
+        bounds_group.addLayer(layer_Issue1VotesasofPresVotes_1);
+        function pop_PresidentialUndervote_2(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Precinct</th>\
+                        <td>' + (feature.properties['PRECNAME'] !== null ? autolinker.link(String(feature.properties['PRECNAME']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Registered Voters</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Registered Voters'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Registered Voters']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Ballots Cast</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Ballots Cast'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Ballots Cast']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Voter Turnout</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Voter Turnout'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Voter Turnout']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Duncan</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Duncan'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Duncan']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Harris</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Harris'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Harris']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Oliver</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Oliver'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Oliver']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Sonski</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Sonski'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Sonski']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Trump</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Trump'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Trump']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">President Undervote</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Pres Undervote'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Pres Undervote']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_PresidentialUndervote_2_0(feature) {
+            switch(String(feature.properties['q2wHide_Issue1Results — Precinct_Pres Undervote Color'])) {
+                case '#008000':
+                    return {
+                pane: 'pane_PresidentialUndervote_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,128,0,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#339933':
+                    return {
+                pane: 'pane_PresidentialUndervote_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(51,153,51,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#66B266':
+                    return {
+                pane: 'pane_PresidentialUndervote_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(102,178,102,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#99CC99':
+                    return {
+                pane: 'pane_PresidentialUndervote_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(153,204,153,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#CCE5CC':
+                    return {
+                pane: 'pane_PresidentialUndervote_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(204,229,204,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFFFFF':
+                    return {
+                pane: 'pane_PresidentialUndervote_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,255,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFFFCC':
+                    return {
+                pane: 'pane_PresidentialUndervote_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,204,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFFF99':
+                    return {
+                pane: 'pane_PresidentialUndervote_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,153,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFFF66':
+                    return {
+                pane: 'pane_PresidentialUndervote_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,102,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFFF33':
+                    return {
+                pane: 'pane_PresidentialUndervote_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,51,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFFF00':
+                    return {
+                pane: 'pane_PresidentialUndervote_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,0,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_PresidentialUndervote_2');
+        map.getPane('pane_PresidentialUndervote_2').style.zIndex = 402;
+        map.getPane('pane_PresidentialUndervote_2').style['mix-blend-mode'] = 'normal';
+        var layer_PresidentialUndervote_2 = new L.geoJson(json_PresidentialUndervote_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_PresidentialUndervote_2',
+            layerName: 'layer_PresidentialUndervote_2',
+            pane: 'pane_PresidentialUndervote_2',
+            onEachFeature: pop_PresidentialUndervote_2,
+            style: style_PresidentialUndervote_2_0,
+        });
+        bounds_group.addLayer(layer_PresidentialUndervote_2);
+        function pop_Issue1Undervote_3(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Precinct</th>\
+                        <td>' + (feature.properties['PRECNAME'] !== null ? autolinker.link(String(feature.properties['PRECNAME']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Registered Voters</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Registered Voters'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Registered Voters']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Ballots Cast</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Ballots Cast'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Ballots Cast']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Voter Turnout</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Voter Turnout'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Voter Turnout']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Issue 1 Yes</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Yes'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Yes']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Issue 1 No</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_No'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_No']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Issue 1 Undervote</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Issue 1 Undervote'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Issue 1 Undervote']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Issue1Undervote_3_0(feature) {
+            switch(String(feature.properties['q2wHide_Issue1Results — Precinct_Issue 1 Undervote Color'])) {
+                case '#008000':
+                    return {
+                pane: 'pane_Issue1Undervote_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,128,0,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#339933':
+                    return {
+                pane: 'pane_Issue1Undervote_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(51,153,51,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#66B266':
+                    return {
+                pane: 'pane_Issue1Undervote_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(102,178,102,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#99CC99':
+                    return {
+                pane: 'pane_Issue1Undervote_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(153,204,153,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#CCE5CC':
+                    return {
+                pane: 'pane_Issue1Undervote_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(204,229,204,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFFFFF':
+                    return {
+                pane: 'pane_Issue1Undervote_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,255,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFFFCC':
+                    return {
+                pane: 'pane_Issue1Undervote_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,204,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFFF99':
+                    return {
+                pane: 'pane_Issue1Undervote_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,153,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFFF66':
+                    return {
+                pane: 'pane_Issue1Undervote_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,102,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFFF33':
+                    return {
+                pane: 'pane_Issue1Undervote_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,51,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFFF00':
+                    return {
+                pane: 'pane_Issue1Undervote_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,0,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Issue1Undervote_3');
+        map.getPane('pane_Issue1Undervote_3').style.zIndex = 403;
+        map.getPane('pane_Issue1Undervote_3').style['mix-blend-mode'] = 'normal';
+        var layer_Issue1Undervote_3 = new L.geoJson(json_Issue1Undervote_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Issue1Undervote_3',
+            layerName: 'layer_Issue1Undervote_3',
+            pane: 'pane_Issue1Undervote_3',
+            onEachFeature: pop_Issue1Undervote_3,
+            style: style_Issue1Undervote_3_0,
+        });
+        bounds_group.addLayer(layer_Issue1Undervote_3);
+        function pop_Issue1PresidentialSwing_4(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Precinct</th>\
+                        <td>' + (feature.properties['PRECNAME'] !== null ? autolinker.link(String(feature.properties['PRECNAME']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Issue 1 Yes</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Yes'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Yes']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Issue 1 No</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_No'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_No']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Harris</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Harris'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Harris']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Trump</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Trump'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Trump']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Issue 1 Margin</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Issue 1 Margin'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Issue 1 Margin']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">President Margin</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_President Margin'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_President Margin']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Swing</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Swing'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Swing']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Issue1PresidentialSwing_4_0(feature) {
+            switch(String(feature.properties['q2wHide_Issue1Results — Precinct_Swing Color'])) {
+                case '#002B84':
+                    return {
+                pane: 'pane_Issue1PresidentialSwing_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,43,132,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#0645B4':
+                    return {
+                pane: 'pane_Issue1PresidentialSwing_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(6,69,180,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#4389E3':
+                    return {
+                pane: 'pane_Issue1PresidentialSwing_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(67,137,227,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#B9D7FF':
+                    return {
+                pane: 'pane_Issue1PresidentialSwing_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(185,215,255,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#E1EFFF':
+                    return {
+                pane: 'pane_Issue1PresidentialSwing_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(225,239,255,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#B368D9':
+                    return {
+                pane: 'pane_Issue1PresidentialSwing_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(179,104,217,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFDFE1':
+                    return {
+                pane: 'pane_Issue1PresidentialSwing_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,223,225,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#F2B3BE':
+                    return {
+                pane: 'pane_Issue1PresidentialSwing_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(242,179,190,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#CC2F4A':
+                    return {
+                pane: 'pane_Issue1PresidentialSwing_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(204,47,74,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#AA0000':
+                    return {
+                pane: 'pane_Issue1PresidentialSwing_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(170,0,0,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#800000':
+                    return {
+                pane: 'pane_Issue1PresidentialSwing_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(128,0,0,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Issue1PresidentialSwing_4');
+        map.getPane('pane_Issue1PresidentialSwing_4').style.zIndex = 404;
+        map.getPane('pane_Issue1PresidentialSwing_4').style['mix-blend-mode'] = 'normal';
+        var layer_Issue1PresidentialSwing_4 = new L.geoJson(json_Issue1PresidentialSwing_4, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Issue1PresidentialSwing_4',
+            layerName: 'layer_Issue1PresidentialSwing_4',
+            pane: 'pane_Issue1PresidentialSwing_4',
+            onEachFeature: pop_Issue1PresidentialSwing_4,
+            style: style_Issue1PresidentialSwing_4_0,
+        });
+        bounds_group.addLayer(layer_Issue1PresidentialSwing_4);
+        function pop_PresidentialResults_5(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Precinct</th>\
+                        <td>' + (feature.properties['PRECNAME'] !== null ? autolinker.link(String(feature.properties['PRECNAME']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Duncan</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Duncan'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Duncan']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Harris</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Harris'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Harris']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Oliver</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Oliver'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Oliver']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Sonski</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Sonski'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Sonski']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Trump</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Trump'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Trump']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">President Margin</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_President Margin'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_President Margin']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_PresidentialResults_5_0(feature) {
+            switch(String(feature.properties['q2wHide_Issue1Results — Precinct_Pres Color'])) {
+                case '#002B84':
+                    return {
+                pane: 'pane_PresidentialResults_5',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,43,132,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#0645B4':
+                    return {
+                pane: 'pane_PresidentialResults_5',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(6,69,180,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#4389E3':
+                    return {
+                pane: 'pane_PresidentialResults_5',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(67,137,227,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#B9D7FF':
+                    return {
+                pane: 'pane_PresidentialResults_5',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(185,215,255,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#E1EFFF':
+                    return {
+                pane: 'pane_PresidentialResults_5',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(225,239,255,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#B368D9':
+                    return {
+                pane: 'pane_PresidentialResults_5',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(179,104,217,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#FFDFE1':
+                    return {
+                pane: 'pane_PresidentialResults_5',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,223,225,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#F2B3BE':
+                    return {
+                pane: 'pane_PresidentialResults_5',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(242,179,190,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#CC2F4A':
+                    return {
+                pane: 'pane_PresidentialResults_5',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(204,47,74,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#AA0000':
+                    return {
+                pane: 'pane_PresidentialResults_5',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(170,0,0,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#800000':
+                    return {
+                pane: 'pane_PresidentialResults_5',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(128,0,0,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_PresidentialResults_5');
+        map.getPane('pane_PresidentialResults_5').style.zIndex = 405;
+        map.getPane('pane_PresidentialResults_5').style['mix-blend-mode'] = 'normal';
+        var layer_PresidentialResults_5 = new L.geoJson(json_PresidentialResults_5, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_PresidentialResults_5',
+            layerName: 'layer_PresidentialResults_5',
+            pane: 'pane_PresidentialResults_5',
+            onEachFeature: pop_PresidentialResults_5,
+            style: style_PresidentialResults_5_0,
+        });
+        bounds_group.addLayer(layer_PresidentialResults_5);
+        function pop_Issue1Results_6(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Precinct</th>\
+                        <td>' + (feature.properties['PRECNAME'] !== null ? autolinker.link(String(feature.properties['PRECNAME']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Issue 1 Yes</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Yes'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Yes']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Issue 1 No</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_No'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_No']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Issue 1 Margin</th>\
+                        <td>' + (feature.properties['Issue1Results — Precinct_Issue 1 Margin'] !== null ? autolinker.link(String(feature.properties['Issue1Results — Precinct_Issue 1 Margin']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Issue1Results_6_0(feature) {
+            switch(String(feature.properties['q2wHide_Issue1Results — Precinct_Issue 1 Color'])) {
+                case '#2B2457':
+                    return {
+                pane: 'pane_Issue1Results_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(43,36,87,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#28497C':
+                    return {
+                pane: 'pane_Issue1Results_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(40,73,124,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#47729E':
+                    return {
+                pane: 'pane_Issue1Results_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(71,114,158,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#7D9CBB':
+                    return {
+                pane: 'pane_Issue1Results_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(125,156,187,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#B6C8D9':
+                    return {
+                pane: 'pane_Issue1Results_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(182,200,217,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#EBEEED':
+                    return {
+                pane: 'pane_Issue1Results_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(235,238,237,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#DEDEBD':
+                    return {
+                pane: 'pane_Issue1Results_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(222,222,189,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#BCBC83':
+                    return {
+                pane: 'pane_Issue1Results_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(188,188,131,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#8B8B54':
+                    return {
+                pane: 'pane_Issue1Results_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(139,139,84,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#5D5D2D':
+                    return {
+                pane: 'pane_Issue1Results_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(93,93,45,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '#32320C':
+                    return {
+                pane: 'pane_Issue1Results_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(50,50,12,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Issue1Results_6');
+        map.getPane('pane_Issue1Results_6').style.zIndex = 406;
+        map.getPane('pane_Issue1Results_6').style['mix-blend-mode'] = 'normal';
+        var layer_Issue1Results_6 = new L.geoJson(json_Issue1Results_6, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Issue1Results_6',
+            layerName: 'layer_Issue1Results_6',
+            pane: 'pane_Issue1Results_6',
+            onEachFeature: pop_Issue1Results_6,
+            style: style_Issue1Results_6_0,
+        });
+        bounds_group.addLayer(layer_Issue1Results_6);
+        function pop_CountyOutline_7(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['STATEFP20'] !== null ? autolinker.link(String(feature.properties['STATEFP20']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COUNTYFP20'] !== null ? autolinker.link(String(feature.properties['COUNTYFP20']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COUNTYNS20'] !== null ? autolinker.link(String(feature.properties['COUNTYNS20']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['GEOID20'] !== null ? autolinker.link(String(feature.properties['GEOID20']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAME20'] !== null ? autolinker.link(String(feature.properties['NAME20']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAMELSAD20'] !== null ? autolinker.link(String(feature.properties['NAMELSAD20']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LSAD20'] !== null ? autolinker.link(String(feature.properties['LSAD20']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CLASSFP20'] !== null ? autolinker.link(String(feature.properties['CLASSFP20']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MTFCC20'] !== null ? autolinker.link(String(feature.properties['MTFCC20']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CSAFP20'] !== null ? autolinker.link(String(feature.properties['CSAFP20']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CBSAFP20'] !== null ? autolinker.link(String(feature.properties['CBSAFP20']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['METDIVFP20'] !== null ? autolinker.link(String(feature.properties['METDIVFP20']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FUNCSTAT20'] !== null ? autolinker.link(String(feature.properties['FUNCSTAT20']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ALAND20'] !== null ? autolinker.link(String(feature.properties['ALAND20']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['AWATER20'] !== null ? autolinker.link(String(feature.properties['AWATER20']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INTPTLAT20'] !== null ? autolinker.link(String(feature.properties['INTPTLAT20']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INTPTLON20'] !== null ? autolinker.link(String(feature.properties['INTPTLON20']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_CountyOutline_7_0() {
+            return {
+                pane: 'pane_CountyOutline_7',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 3.0, 
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_CountyOutline_7');
+        map.getPane('pane_CountyOutline_7').style.zIndex = 407;
+        map.getPane('pane_CountyOutline_7').style['mix-blend-mode'] = 'normal';
+        var layer_CountyOutline_7 = new L.geoJson(json_CountyOutline_7, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_CountyOutline_7',
+            layerName: 'layer_CountyOutline_7',
+            pane: 'pane_CountyOutline_7',
+            onEachFeature: pop_CountyOutline_7,
+            style: style_CountyOutline_7_0,
+        });
+        bounds_group.addLayer(layer_CountyOutline_7);
+        map.addLayer(layer_CountyOutline_7);
+        var overlaysTree = [
+            {label: '<img src="legend/CountyOutline_7.png" /> County Outline', layer: layer_CountyOutline_7},
+            {label: 'Issue 1 Results<br /><table><tr><td style="text-align: center;"><img src="legend/Issue1Results_6_Yes600.png" /></td><td>Yes+>60%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1Results_6_Yes45601.png" /></td><td>Yes+45-60%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1Results_6_Yes30452.png" /></td><td>Yes+30-45%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1Results_6_Yes15303.png" /></td><td>Yes+15-30%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1Results_6_Yes0154.png" /></td><td>Yes+0-15%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1Results_6_Tie5.png" /></td><td>Tie</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1Results_6_No0156.png" /></td><td>No+0-15%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1Results_6_No15307.png" /></td><td>No+15-30%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1Results_6_No30458.png" /></td><td>No+30-45%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1Results_6_No45609.png" /></td><td>No+45-60%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1Results_6_No6010.png" /></td><td>No+>60%</td></tr></table>', layer: layer_Issue1Results_6},
+            {label: 'Presidential Results<br /><table><tr><td style="text-align: center;"><img src="legend/PresidentialResults_5_Harris600.png" /></td><td>Harris+>60%</td></tr><tr><td style="text-align: center;"><img src="legend/PresidentialResults_5_Harris45601.png" /></td><td>Harris+45-60%</td></tr><tr><td style="text-align: center;"><img src="legend/PresidentialResults_5_Harris30452.png" /></td><td>Harris+30-45%</td></tr><tr><td style="text-align: center;"><img src="legend/PresidentialResults_5_Harris15303.png" /></td><td>Harris+15-30%</td></tr><tr><td style="text-align: center;"><img src="legend/PresidentialResults_5_Harris0154.png" /></td><td>Harris+0-15%</td></tr><tr><td style="text-align: center;"><img src="legend/PresidentialResults_5_Tie5.png" /></td><td>Tie</td></tr><tr><td style="text-align: center;"><img src="legend/PresidentialResults_5_Trump0156.png" /></td><td>Trump+0-15%</td></tr><tr><td style="text-align: center;"><img src="legend/PresidentialResults_5_Trump15307.png" /></td><td>Trump+15-30%</td></tr><tr><td style="text-align: center;"><img src="legend/PresidentialResults_5_Trump30458.png" /></td><td>Trump+30-45%</td></tr><tr><td style="text-align: center;"><img src="legend/PresidentialResults_5_Trump45609.png" /></td><td>Trump+45-60%</td></tr><tr><td style="text-align: center;"><img src="legend/PresidentialResults_5_Trump6010.png" /></td><td>Trump+>60%</td></tr></table>', layer: layer_PresidentialResults_5},
+            {label: 'Issue 1-Presidential Swing<br /><table><tr><td style="text-align: center;"><img src="legend/Issue1PresidentialSwing_4_YesoverHarris120.png" /></td><td>Yes over Harris >12%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1PresidentialSwing_4_YesoverHarris9121.png" /></td><td>Yes over Harris 9-12%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1PresidentialSwing_4_YesoverHarris692.png" /></td><td>Yes over Harris 6-9%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1PresidentialSwing_4_YesoverHarris363.png" /></td><td>Yes over Harris 3-6%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1PresidentialSwing_4_YesoverHarris034.png" /></td><td>Yes over Harris 0-3%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1PresidentialSwing_4_Tie5.png" /></td><td>Tie</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1PresidentialSwing_4_NooverTrump036.png" /></td><td>No over Trump 0-3%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1PresidentialSwing_4_NooverTrump367.png" /></td><td>No over Trump 3-6%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1PresidentialSwing_4_NooverTrump698.png" /></td><td>No over Trump 6-9%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1PresidentialSwing_4_NooverTrump9129.png" /></td><td>No over Trump 9-12%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1PresidentialSwing_4_NooverTrump1210.png" /></td><td>No over Trump >12%</td></tr></table>', layer: layer_Issue1PresidentialSwing_4},
+            {label: 'Issue 1 Undervote<br /><table><tr><td style="text-align: center;"><img src="legend/Issue1Undervote_3_010.png" /></td><td>0-1%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1Undervote_3_121.png" /></td><td>1-2%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1Undervote_3_232.png" /></td><td>2-3%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1Undervote_3_343.png" /></td><td>3-4%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1Undervote_3_454.png" /></td><td>4-5%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1Undervote_3_565.png" /></td><td>5-6%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1Undervote_3_676.png" /></td><td>6-7%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1Undervote_3_787.png" /></td><td>7-8%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1Undervote_3_898.png" /></td><td>8-9%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1Undervote_3_9109.png" /></td><td>9-10%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1Undervote_3_1010.png" /></td><td>>10%</td></tr></table>', layer: layer_Issue1Undervote_3},
+            {label: 'Presidential Undervote<br /><table><tr><td style="text-align: center;"><img src="legend/PresidentialUndervote_2_010.png" /></td><td>0-1%</td></tr><tr><td style="text-align: center;"><img src="legend/PresidentialUndervote_2_121.png" /></td><td>1-2%</td></tr><tr><td style="text-align: center;"><img src="legend/PresidentialUndervote_2_232.png" /></td><td>2-3%</td></tr><tr><td style="text-align: center;"><img src="legend/PresidentialUndervote_2_343.png" /></td><td>3-4%</td></tr><tr><td style="text-align: center;"><img src="legend/PresidentialUndervote_2_454.png" /></td><td>4-5%</td></tr><tr><td style="text-align: center;"><img src="legend/PresidentialUndervote_2_565.png" /></td><td>5-6%</td></tr><tr><td style="text-align: center;"><img src="legend/PresidentialUndervote_2_676.png" /></td><td>6-7%</td></tr><tr><td style="text-align: center;"><img src="legend/PresidentialUndervote_2_787.png" /></td><td>7-8%</td></tr><tr><td style="text-align: center;"><img src="legend/PresidentialUndervote_2_898.png" /></td><td>8-9%</td></tr><tr><td style="text-align: center;"><img src="legend/PresidentialUndervote_2_9109.png" /></td><td>9-10%</td></tr><tr><td style="text-align: center;"><img src="legend/PresidentialUndervote_2_1010.png" /></td><td>>10%</td></tr></table>', layer: layer_PresidentialUndervote_2},
+            {label: 'Issue 1 Votes as % of Pres Votes<br /><table><tr><td style="text-align: center;"><img src="legend/Issue1VotesasofPresVotes_1_1010.png" /></td><td>>101%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1VotesasofPresVotes_1_1001011.png" /></td><td>100-101%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1VotesasofPresVotes_1_991002.png" /></td><td>99-100%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1VotesasofPresVotes_1_98993.png" /></td><td>98-99%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1VotesasofPresVotes_1_97984.png" /></td><td>97-98%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1VotesasofPresVotes_1_96975.png" /></td><td>96-97%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1VotesasofPresVotes_1_95966.png" /></td><td>95-96%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1VotesasofPresVotes_1_94957.png" /></td><td>94-95%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1VotesasofPresVotes_1_93948.png" /></td><td>93-94%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1VotesasofPresVotes_1_92939.png" /></td><td>92-93%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1VotesasofPresVotes_1_919210.png" /></td><td>91-92%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1VotesasofPresVotes_1_909111.png" /></td><td>90-91%</td></tr><tr><td style="text-align: center;"><img src="legend/Issue1VotesasofPresVotes_1_9012.png" /></td><td><90%</td></tr></table>', layer: layer_Issue1VotesasofPresVotes_1},
+            {label: "Google Road", layer: layer_GoogleRoad_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: false, 
+        });
+        lay.addTo(map);
+		document.addEventListener("DOMContentLoaded", function() {
+            // set new Layers List height which considers toggle icon
+            function newLayersListHeight() {
+                var layerScrollbarElement = document.querySelector('.leaflet-control-layers-scrollbar');
+                if (layerScrollbarElement) {
+                    var layersListElement = document.querySelector('.leaflet-control-layers-list');
+                    var originalHeight = layersListElement.style.height 
+                        || window.getComputedStyle(layersListElement).height;
+                    var newHeight = parseFloat(originalHeight) - 50;
+                    layersListElement.style.height = newHeight + 'px';
+                }
+            }
+            var isLayersListExpanded = true;
+            var controlLayersElement = document.querySelector('.leaflet-control-layers');
+            var toggleLayerControl = document.querySelector('.leaflet-control-layers-toggle');
+            // toggle Collapsed/Expanded and apply new Layers List height
+            toggleLayerControl.addEventListener('click', function() {
+                if (isLayersListExpanded) {
+                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
+                } else {
+                    controlLayersElement.classList.add('leaflet-control-layers-expanded');
+                }
+                isLayersListExpanded = !isLayersListExpanded;
+                newLayersListHeight()
+            });	
+			// apply new Layers List height if toggle layerstree
+			if (controlLayersElement) {
+				controlLayersElement.addEventListener('click', function(event) {
+					var toggleLayerHeaderPointer = event.target.closest('.leaflet-layerstree-header-pointer span');
+					if (toggleLayerHeaderPointer) {
+						newLayersListHeight();
+					}
+				});
+			}
+            // Collapsed/Expanded at Start to apply new height
+            setTimeout(function() {
+                toggleLayerControl.click();
+            }, 10);
+            setTimeout(function() {
+                toggleLayerControl.click();
+            }, 10);
+            // Collapsed touch/small screen
+            var isSmallScreen = window.innerWidth < 650;
+            if (isSmallScreen) {
+                setTimeout(function() {
+                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
+                    isLayersListExpanded = !isLayersListExpanded;
+                }, 500);
+            }  
+        });       
+        setBounds();
+        </script>
+    </body>
+</html>
